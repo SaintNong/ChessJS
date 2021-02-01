@@ -45,6 +45,7 @@ var PawnTable = [
     ];
     
     var BishopPair = 20;
+    var ENDGAME_MAT = 1 * PieceVal[PIECES.wR] + 2 * PieceVal[PIECES.wN] + 2 * PieceVal[PIECES.wP] + PieceVal[PIECES.wK];
     
     
     function EvalPosition() {
@@ -107,12 +108,32 @@ var PawnTable = [
         for(pceNum = 0; pceNum < GameBoard.pceNum[pce]; ++pceNum) {
             sq = GameBoard.pList[PCEINDEX(pce,pceNum)];
             score += RookTable[SQ64(sq)];
+            score += BishopTable[SQ64(sq)];
         }	
     
         pce = PIECES.bQ;	
         for(pceNum = 0; pceNum < GameBoard.pceNum[pce]; ++pceNum) {
             sq = GameBoard.pList[PCEINDEX(pce,pceNum)];
             score -= RookTable[MIRROR64(SQ64(sq))];
+            score -= BishopTable[MIRROR64(SQ64(sq))];
+        }
+
+        pce = PIECES.wK;
+        sq = GameBoard.pList[PCEINDEX(pce,0)];
+        
+        if( (brd_material[COLOURS.BLACK] <= ENDGAME_MAT) ) {
+            score += KingE[SQ64(sq)];
+        } else {
+            score += KingO[SQ64(sq)];
+        }
+        
+        pce = PIECES.bK;
+        sq = GameBoard.pList[PCEINDEX(pce,0)];
+        
+        if( (brd_material[COLOURS.WHITE] <= ENDGAME_MAT) ) {
+            score -= KingE[MIRROR64(SQ64(sq))];
+        } else {
+            score -= KingO[MIRROR64(SQ64(sq))];
         }
         
         if(GameBoard.pceNum[PIECES.wB] >= 2) {
