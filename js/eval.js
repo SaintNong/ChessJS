@@ -44,7 +44,7 @@ var PawnTable = [
     0	,	0	,	5	,	10	,	10	,	5	,	0	,	0		
     ];
     
-    var BishopPair = 40;
+    var BishopPair = 20;
     
     
     function EvalPosition() {
