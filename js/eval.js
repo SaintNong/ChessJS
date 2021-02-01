@@ -121,7 +121,7 @@ var PawnTable = [
         pce = PIECES.wK;
         sq = GameBoard.pList[PCEINDEX(pce,0)];
         
-        if( (brd_material[COLOURS.BLACK] <= ENDGAME_MAT) ) {
+        if( (GameBoard.material[COLOURS.BLACK] <= ENDGAME_MAT) ) {
             score += KingE[SQ64(sq)];
         } else {
             score += KingO[SQ64(sq)];
@@ -130,7 +130,7 @@ var PawnTable = [
         pce = PIECES.bK;
         sq = GameBoard.pList[PCEINDEX(pce,0)];
         
-        if( (brd_material[COLOURS.WHITE] <= ENDGAME_MAT) ) {
+        if( (GameBoard.material[COLOURS.WHITE] <= ENDGAME_MAT) ) {
             score -= KingE[MIRROR64(SQ64(sq))];
         } else {
             score -= KingO[MIRROR64(SQ64(sq))];
