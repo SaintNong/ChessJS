@@ -1,0 +1,132 @@
+#FenInDiv {
+    position: relative;
+    left: 60px;
+}
+
+#fenIn {
+    width: 480px;
+    left: 60px;
+}
+
+#Board {
+    position: relative;
+    top: 20px;
+    left: 60px;
+    width: 480px;
+    height: 480px;
+    border-style: solid;
+    border-width: 3px;
+}
+
+#EngineOutput {
+    position: absolute;
+    left: 600px;
+    top: 175px;
+    width: 150px;
+    border-style: solid;
+    border-width: 2px;
+    padding: 1%;
+    background-color: aliceblue;
+}
+
+.Square {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+}
+
+.Dark {
+    background-color: #af8968;
+}
+
+.Light {
+    background-color:#edd9b9;
+}
+
+.SqSelected {
+    background-color: #046309;
+}
+
+.rank1 { top: 420px; }
+.rank2 { top: 360px; }
+.rank3 { top: 300px; }
+.rank4 { top: 240px; }
+.rank5 { top: 180px; }
+.rank6 { top: 120px; }
+.rank7 { top: 60px; }
+.rank8 { top: 0px; }
+
+.file1 { left: 0px; }
+.file2 { left: 60px; }
+.file3 { left: 120px; }
+.file4 { left: 180px; }
+.file5 { left: 240px; }
+.file6 { left: 300px; }
+.file7 { left: 360px; }
+.file8 { left: 420px; }
+
+.Piece {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+}
+
+h3 {
+    position: relative;
+    left: 200px;
+    font-family:Arial, Helvetica, sans-serif;
+    font-size: x-large;
+}
+
+h4 {
+    font-family:Arial, Helvetica, sans-serif;
+    font-size: large;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: small;
+}
+
+.button {
+    outline: none;
+    width: 100px;
+    background-color: #4caee7;
+    border: none;
+    text-align: center;
+    text-decoration: none;
+    font-size: 16px;
+    transition-duration: 0.1s;
+    margin-top: 1px;
+}
+
+
+.button:hover {
+    background-color: #0f3b99;
+    color: white;
+}
+
+#FenTitle {
+    font-size: 16px;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+#CurrentFenDiv {
+	position: relative;
+	left: 60px;
+    margin-top: 40px;
+    font-size: medium;
+}
+
+#AudioDiv {
+    display: none;
+}
+
+
+#LoadingBook {
+	position: absolute;
+	left: 600px;
+	top: 125px;	
+    font-size: medium;
+    font-family: Arial, Helvetica, sans-serif;
+}
