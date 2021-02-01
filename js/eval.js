@@ -1,13 +1,13 @@
-var RookOpenFile = 10;
-var RookSemiOpenFile = 5;
-var QueenOpenFile = 5;
-var QueenSemiOpenFile = 3;
-var BishopPair = 30;
+var RookOpenFile = 15;
+var RookSemiOpenFile = 10;
+var QueenOpenFile = 10;
+var QueenSemiOpenFile = 5;
+var BishopPair = 15;
 
 var PawnRanksWhite = new Array(10);
 var PawnRanksBlack = new Array(10);
 
-var PawnIsolated = -10;
+var PawnIsolated = -20;
 var PawnPassed = [ 0, 5, 10, 20, 35, 60, 100, 200 ]; 
 
 // Pce square tables
@@ -23,8 +23,8 @@ var KingE = [
 ];
 
 var KingO = [	
-	0	,	5	,	5	,	-10	,	-10	,	0	,	10	,	5	,
-	-30	,	-30	,	-30	,	-30	,	-30	,	-30	,	-30	,	-30	,
+	5	,	10	,	5	,	-10	,	-10	,	0	,	20	,	10	,
+	-5	,	-5	,	-20	,	-30	,	-30	,	-20	,	-5	,	-5	,
 	-50	,	-50	,	-50	,	-50	,	-50	,	-50	,	-50	,	-50	,
 	-70	,	-70	,	-70	,	-70	,	-70	,	-70	,	-70	,	-70	,
 	-70	,	-70	,	-70	,	-70	,	-70	,	-70	,	-70	,	-70	,
@@ -42,19 +42,19 @@ var PawnTable = [
     10	,	10	,	10	,	20	,	20	,	10	,	10	,	10	,
     50	,	50	,	50	,	50	,	50	,	50	,	50	,	50	,
     0	,	0	,	0	,	0	,	0	,	0	,	0	,	0	
-    ];
+];
     
     
 var KnightTable = [
-    0	,	-10	,	0	,	0	,	0	,	0	,	-10	,	0	,
-    0	,	0	,	0	,	5	,	5	,	0	,	0	,	0	,
-    0	,	0	,	10	,	10	,	10	,	10	,	0	,	0	,
-    0	,	0	,	10	,	20	,	20	,	10	,	5	,	0	,
+    -20	,	-15	,	0	,	0	,	0	,	0	,	-15	,	-20	,
+    -5	,	0	,	0	,	5	,	5	,	0	,	0	,	0	,
+    -10	,	0	,	10	,	10	,	10	,	10	,	0	,	-10	,
+    -10	,	0	,	10	,	20	,	20	,	10	,	5	,	-10	,
     5	,	10	,	15	,	20	,	20	,	15	,	10	,	5	,
     5	,	10	,	10	,	20	,	20	,	10	,	10	,	5	,
     0	,	0	,	5	,	10	,	10	,	5	,	0	,	0	,
     0	,	0	,	0	,	0	,	0	,	0	,	0	,	0		
-    ];
+];
     
 var BishopTable = [
     0	,	0	,	-10	,	0	,	0	,	-10	,	0	,	0	,
@@ -65,7 +65,7 @@ var BishopTable = [
     0	,	0	,	10	,	15	,	15	,	10	,	0	,	0	,
     0	,	0	,	0	,	10	,	10	,	0	,	0	,	0	,
     0	,	0	,	0	,	0	,	0	,	0	,	0	,	0	
-    ];
+];
     
 var RookTable = [
     0	,	0	,	15	,	16	,	16	,	15	,	0	,	0	,
@@ -76,9 +76,8 @@ var RookTable = [
     0	,	0	,	5	,	10	,	10	,	5	,	0	,	0	,
     25	,	25	,	25	,	25	,	25	,	25	,	25	,	25	,
     0	,	0	,	5	,	10	,	10	,	5	,	0	,	0		
-    ];
-    
-var BishopPair = 20;
+];
+
 var ENDGAME_MAT = 1 * PieceVal[PIECES.wR] + 2 * PieceVal[PIECES.wN] + 2 * PieceVal[PIECES.wP] + PieceVal[PIECES.wK];
 
 function PawnsInit() {
@@ -227,7 +226,7 @@ function EvalPosition() {
 	pce = PIECES.wQ;	
 	for(pceNum = 0; pceNum < GameBoard.pceNum[pce]; ++pceNum) {
 		sq = GameBoard.pList[PCEINDEX(pce,pceNum)];
-		score += RookTable[SQ64(sq)];	
+		score += BishopTable[SQ64(sq)];	
 		file = FilesBrd[sq]+1;
 		if(PawnRanksWhite[file]==RANKS.RANK_8) {
 			if(PawnRanksBlack[file]==RANKS.RANK_1) {
@@ -241,7 +240,7 @@ function EvalPosition() {
 	pce = PIECES.bQ;	
 	for(pceNum = 0; pceNum < GameBoard.pceNum[pce]; ++pceNum) {
 		sq = GameBoard.pList[PCEINDEX(pce,pceNum)];
-		score -= RookTable[MIRROR64(SQ64(sq))];	
+		score -= BishopTable[MIRROR64(SQ64(sq))];	
 		file = FilesBrd[sq]+1;
 		if(PawnRanksBlack[file]==RANKS.RANK_1) {
 			if(PawnRanksWhite[file]==RANKS.RANK_8) {
