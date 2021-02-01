@@ -48,6 +48,15 @@ function InitFilesRanksBrd() {
 	}
 }
 
+function EvalInit() {
+	var index = 0;
+	
+	for(index = 0; index < 10; ++index) {				
+		PawnRanksWhite[index] = 0;			
+		PawnRanksBlack[index] = 0;
+	}
+}
+
 function InitHashKeys() {
     var index = 0;
 	
@@ -138,6 +147,7 @@ function init() {
 
 	InitFilesRanksBrd();
 	InitHashKeys();
+	EvalInit();
 	InitSq120To64();
 	InitBoardVars();
 	InitMvvLva();
