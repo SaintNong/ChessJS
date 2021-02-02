@@ -11,7 +11,7 @@ var PawnIsolated = -20;
 var PawnPassed = [ 0, 5, 10, 20, 35, 60, 100, 200 ]; 
 
 var PawnShield = 10;
-var TropismValue = 8;
+var TropismValue = 4;
 
 
 // Pce square tables
@@ -131,10 +131,10 @@ function KingSafety() {
 		kingSafetyScore += PawnShield;
 	}
 	if (GameBoard.pieces[sq+9] == PIECES.wP) {
-		kingSafetyScore += PawnShield/5;
+		kingSafetyScore += PawnShield/2;
 	}
 	if (GameBoard.pieces[sq+11] == PIECES.wP) {
-		kingSafetyScore += PawnShield/5;
+		kingSafetyScore += PawnShield/2;
 	}
 
 	// Black king
@@ -144,10 +144,10 @@ function KingSafety() {
 		kingSafetyScore -= PawnShield;
 	}
 	if (GameBoard.pieces[sq-9] == PIECES.bP) {
-		kingSafetyScore -= PawnShield/5;
+		kingSafetyScore -= PawnShield/2;
 	}
 	if (GameBoard.pieces[sq-11] == PIECES.bP) {
-		kingSafetyScore -= PawnShield/5;
+		kingSafetyScore -= PawnShield/2;
 	}
 
 	return kingSafetyScore;
@@ -206,7 +206,7 @@ function EvalPosition() {
 			score += PawnPassed[rank];
 		}
 
-		score += (7 - Distance(sq, bKsq)) * (TropismValue/2);
+		score += (7 - Distance(sq, bKsq)) * TropismValue * 1.5;
 	}	
 
 	pce = PIECES.bP;
@@ -223,7 +223,7 @@ function EvalPosition() {
 			score -= PawnPassed[7-rank];
 		}
 
-		score -= (7 - Distance(sq, wKsq)) * (TropismValue/2);
+		score -= (7 - Distance(sq, wKsq)) * TropismValue * 1.5;
 	}	
 	
 	pce = PIECES.wN;	
