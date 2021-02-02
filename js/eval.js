@@ -11,7 +11,7 @@ var PawnIsolated = -20;
 var PawnPassed = [ 0, 5, 10, 20, 35, 60, 100, 200 ]; 
 
 var PawnShield = 10;
-var TropismValue = 4;
+var TropismValue = 6;
 
 
 // Pce square tables
@@ -39,7 +39,7 @@ var KingO = [
 
 var PawnTable = [
     0	,	0	,	0	,	0	,	0	,	0	,	0	,	0	,
-    15	,	15	,	5	,	-15	,	-15	,	5	,	15	,	15	,
+    10	,	15	,	5	,	-10	,	-15	,	5	,	15	,	10	,
     5	,	0	,	0	,	5	,	5	,	0	,	0	,	5	,
     0	,	0	,	10	,	20	,	20	,	10	,	0	,	0	,
     5	,	5	,	5	,	10	,	10	,	5	,	5	,	5	,
@@ -303,7 +303,7 @@ function EvalPosition() {
 			}
 		}
 
-		score += (7 - Distance(sq, bKsq)) * TropismValue * 1.5;
+		score += (7 - Distance(sq, bKsq)) * TropismValue * 2;
 	}	
 
 	pce = PIECES.bQ;	
@@ -319,7 +319,7 @@ function EvalPosition() {
 			}
 		}
 
-		score -= (7 - Distance(sq, wKsq)) * TropismValue * 1.5;
+		score -= (7 - Distance(sq, wKsq)) * TropismValue * 2;
 	}
 
 
