@@ -43,8 +43,39 @@
     background-color:#edd9b9;
 }
 
-.SqSelected {
-    background-color: #046309;
+.SqSelectedDark {
+    background-color: #666e46;
+}
+
+.SqSelectedLight {
+    background-color: #86966e;
+}
+
+.PossibleMove:hover {
+    filter: hue-rotate(45deg);
+}
+
+.PossibleCapture {
+    background:radial-gradient(transparent 0%, transparent 79%, rgba(20,85,0,0.3) 80%);
+}
+
+.PossibleCapture:hover {
+    background-color: rgba(20,85,0,0.3);
+}
+
+.dot {
+  height: 20px;
+  width: 20px;
+  margin-top: 33%;
+  margin-left: 33%;
+  background-color: #404040;
+  border-radius: 50%;
+  display: inline-block;
+  opacity: 0.7;
+}
+
+.PreviousMove {
+    filter: hue-rotate(45deg);
 }
 
 .rank1 { top: 420px; }
@@ -69,6 +100,7 @@
     position: absolute;
     width: 60px;
     height: 60px;
+    pointer-events: auto;
 }
 
 h3 {

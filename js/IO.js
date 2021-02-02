@@ -1,3 +1,6 @@
+var SelectedSqs = [];
+var hisFrom, hisTo = SQUARES.NO_SQ;
+
 $("#SetFen").click(function () {
 	var fenStr = $("#fenIn").val();	
 	NewGame(fenStr);
@@ -5,6 +8,7 @@ $("#SetFen").click(function () {
 
 $("#TakeButton").click( function () {
 	if (GameBoard.hisPly > 0) {
+		DeselectLastMove();
 		TakeMove();
 		GameBoard.ply = 0;
 		SetInitialBoardPieces();
@@ -19,6 +23,9 @@ $("#NewGameButton").click( function () {
 });
 
 function NewGame(fenStr) {
+	DeselectLastMove();
+	DeSelectSq(UserMove.from);
+	DeSelectSq(UserMove.to);
 	ParseFen(fenStr);
 	PrintBoard();
 	SetInitialBoardPieces();
@@ -48,19 +55,128 @@ function SetInitialBoardPieces() {
 }
 
 function DeSelectSq(sq) {
+	$(".dot").remove()
 	$('.Square').each( function(index) {
 		if(PieceIsOnSq(sq, $(this).position().top, $(this).position().left) == BOOL.TRUE) {
-				$(this).removeClass('SqSelected');
+			if ($(this).hasClass('SqSelectedDark')) {
+				$(this).removeClass('SqSelectedDark');
+			} else {
+				$(this).removeClass('SqSelectedLight');
+			}
+		}
+		for (var i=0; i<SelectedSqs.length; i++) {
+			if (PieceIsOnSq(SelectedSqs[i], $(this).position().top, $(this).position().left) == BOOL.TRUE) {
+				if ($(this).hasClass('PossibleMove')) {
+					$(this).removeClass('PossibleMove')
+				} else if ($(this).hasClass('PreviousMove')) {
+					$(this).removeClass('PreviousMove')
+				} else {
+					AddPossibleCapture(SelectedSqs[i], false);
+				}
+			}
 		}
 	} );
 }
 
-function SetSqSelected(sq) {
+function isEven(n) {
+	if (n == 0) {
+		return true;
+	} else if (n % 2 == 0) {
+		return true;
+	}
+	return false;
+}
+
+function DeselectLastMove() {
 	$('.Square').each( function(index) {
-		if(PieceIsOnSq(sq, $(this).position().top, $(this).position().left) == BOOL.TRUE) {
-				$(this).addClass('SqSelected');
+		if(PieceIsOnSq(hisFrom, $(this).position().top, $(this).position().left) == BOOL.TRUE || PieceIsOnSq(hisTo, $(this).position().top, $(this).position().left) == BOOL.TRUE) {
+			$(this).removeClass('PreviousMove')
 		}
 	} );
+}
+
+function HighlightMoves(sq) {
+
+	hisFrom, hisTo = SQUARES.NO_SQ;
+
+	GenerateMoves();
+	SelectedSqs = [];
+
+	var MoveNum = 0;
+	for (MoveNum = GameBoard.moveListStart[GameBoard.ply]; MoveNum < GameBoard.moveListStart[GameBoard.ply + 1]; ++MoveNum) {
+		if (ParseMove(FROMSQ(GameBoard.moveList[MoveNum]), TOSQ(GameBoard.moveList[MoveNum])) != NOMOVE) {
+			if (FROMSQ(GameBoard.moveList[MoveNum]) == sq) {
+				SelectedSqs.push(TOSQ(GameBoard.moveList[MoveNum]));
+			}
+		}
+	}
+
+	if (GameBoard.hisPly > 0) {
+		hisFrom = FROMSQ(GameBoard.history[GameBoard.hisPly-1].move);
+		hisTo = TOSQ(GameBoard.history[GameBoard.hisPly-1].move);
+	}
+
+	$('.Square').each( function(index) {
+		if (hisFrom != SQUARES.NO_SQ) {
+			if (PieceIsOnSq(hisFrom, $(this).position().top, $(this).position().left) == BOOL.TRUE || PieceIsOnSq(hisTo, $(this).position().top, $(this).position().left) == BOOL.TRUE) {
+				$(this).addClass('PreviousMove');
+			}
+		}
+
+		for (var i=0; i<SelectedSqs.length; i++) {
+			if (PieceIsOnSq(SelectedSqs[i], $(this).position().top, $(this).position().left) == BOOL.TRUE) {
+				if (GameBoard.pieces[SelectedSqs[i]] == PIECES.EMPTY) {
+					$(this).addClass('PossibleMove')
+					if ($(this).find("span.dot").length == 0) {
+						$(this).append('<span class="dot"></span>');
+					}
+				} else {
+					AddPossibleCapture(SelectedSqs[i], true);
+				}
+			}
+		}
+	});
+}
+
+function AddPossibleCapture(sq, isAdd) {
+	$(".Piece").each( function(index) {
+		if (PieceIsOnSq(sq, $(this).position().top, $(this).position().left) == BOOL.TRUE) {
+			if (isAdd) {
+				console.log("ADD")
+				$(this).addClass('PossibleCapture');
+			} else {
+				$(this).removeClass('PossibleCapture')
+			}
+		}
+	});
+}
+
+function SetSqSelected(sq) {
+	$('.Square').each( function(index) {
+		if (PieceIsOnSq(sq, $(this).position().top, $(this).position().left) == BOOL.TRUE) {
+			if ((GameBoard.side == COLOURS.WHITE && PieceCol[GameBoard.pieces[sq]] == COLOURS.WHITE) || (GameBoard.side == COLOURS.BLACK && PieceCol[GameBoard.pieces[sq]] == COLOURS.BLACK)) {
+
+				// Check if the selected square is light/dark
+				if (isEven(FilesBrd[sq])) {
+					if (!isEven(RanksBrd[sq])) {
+						$(this).addClass('SqSelectedLight');
+					} else {
+						$(this).addClass('SqSelectedDark');
+					}
+				} else {
+					if (!isEven(RanksBrd[sq])) {
+						$(this).addClass('SqSelectedDark');
+					} else {
+						$(this).addClass('SqSelectedLight');
+					}
+				}
+				
+				// Highlight Possible Moves
+				HighlightMoves(sq)
+
+			}
+		}
+	});
 }
 
 function ClickedSquare(pageX, pageY) {
@@ -77,7 +193,7 @@ function ClickedSquare(pageX, pageY) {
 	
 	var sq = FR2SQ(file,rank);
 	
-	SetSqSelected(sq);	
+	SetSqSelected(sq);
 	
 	return sq;
 }
@@ -87,11 +203,13 @@ $(document).on('click','.Piece', function (e) {
 	if(UserMove.from == SQUARES.NO_SQ) {
 		UserMove.from = ClickedSquare(e.pageX, e.pageY);
 	} else {
+		DeSelectSq(UserMove.from)
 		UserMove.to = ClickedSquare(e.pageX, e.pageY);
 	}
 	
-	MakeUserMove();
-	
+	if (!MakeUserMove()) {
+		UserMove.from = ClickedSquare(e.pageX, e.pageY);
+	}
 });
 
 $(document).on('click','.Square', function (e) {
@@ -116,6 +234,7 @@ function MakeUserMove() {
 			PlayMoveAudio(parsed);
 			UpdateFenSpan();
 			PreSearch();
+			PrintBoard();
 		}
 	
 		DeSelectSq(UserMove.from);
@@ -123,8 +242,14 @@ function MakeUserMove() {
 		
 		UserMove.from = SQUARES.NO_SQ;
 		UserMove.to = SQUARES.NO_SQ;
+
+		if (parsed != NOMOVE) {
+			DeselectLastMove();
+			return true;
+		}
 	}
 
+	return false;
 }
 
 function PieceIsOnSq(sq, top, left) {
@@ -271,7 +396,8 @@ function CheckResult() {
 	      return BOOL.TRUE;
         }
 	} else {
-		$("#GameStatus").text("GAME DRAWN {Stalemate}");return BOOL.TRUE;
+		$("#GameStatus").text("GAME DRAWN {Stalemate}");
+		return BOOL.TRUE;
 	}
 	
 	return BOOL.FALSE;	
@@ -301,10 +427,12 @@ function PreSearch() {
 
 $('#SearchButton').click( function () {	
 	GameController.PlayerSide = GameController.side ^ 1;
+	DeselectLastMove();
 	PreSearch();
 });
 
 function StartSearch() {
+	DeSelectSq(UserMove.from);
 
 	SearchController.depth = MAXDEPTH;
 	var t = $.now();
@@ -320,6 +448,7 @@ function StartSearch() {
 	CheckAndSet();
 	UpdateFenSpan();
 
+	HighlightMoves(SQUARES.NO_SQ);
 }
 
 function PlayMoveAudio(move) {
