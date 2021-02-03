@@ -11,7 +11,7 @@ var PawnIsolated = -20;
 var PawnPassed = [ 0, 5, 10, 20, 35, 60, 100, 200 ]; 
 
 var PawnShield = 10;
-var TropismValue = 6;
+var TropismValue = 4;
 
 
 // Pce square tables
@@ -130,6 +130,9 @@ function KingSafety() {
 	if (GameBoard.pieces[sq+10] == PIECES.wP) {
 		kingSafetyScore += PawnShield;
 	}
+	if (GameBoard.pieces[sq+20] == PIECES.wP) {
+		kingSafetyScore += PawnShield/2;
+	}
 	if (GameBoard.pieces[sq+9] == PIECES.wP) {
 		kingSafetyScore += PawnShield/2;
 	}
@@ -142,6 +145,9 @@ function KingSafety() {
 	sq = GameBoard.pList[PCEINDEX(pce,0)];
 	if (GameBoard.pieces[sq-10] == PIECES.bP) {
 		kingSafetyScore -= PawnShield;
+	}
+	if (GameBoard.pieces[sq-20] == PIECES.bP) {
+		kingSafetyScore -= PawnShield/2;
 	}
 	if (GameBoard.pieces[sq-9] == PIECES.bP) {
 		kingSafetyScore -= PawnShield/2;
@@ -206,7 +212,7 @@ function EvalPosition() {
 			score += PawnPassed[rank];
 		}
 
-		score += (7 - Distance(sq, bKsq)) * TropismValue * 1.5;
+		score += (7 - Distance(sq, bKsq)) * TropismValue;
 	}	
 
 	pce = PIECES.bP;
@@ -223,7 +229,7 @@ function EvalPosition() {
 			score -= PawnPassed[7-rank];
 		}
 
-		score -= (7 - Distance(sq, wKsq)) * TropismValue * 1.5;
+		score -= (7 - Distance(sq, wKsq)) * TropismValue;
 	}	
 	
 	pce = PIECES.wN;	
@@ -271,7 +277,7 @@ function EvalPosition() {
 			}
 		}
 
-		score += (7 - Distance(sq, bKsq)) * TropismValue * 1.5;
+		score += (7 - Distance(sq, bKsq)) * TropismValue;
 	}	
 
 	pce = PIECES.bR;	
@@ -287,7 +293,7 @@ function EvalPosition() {
 			}
 		}
 
-		score -= (7 - Distance(sq, wKsq)) * TropismValue * 1.5;
+		score -= (7 - Distance(sq, wKsq)) * TropismValue;
 	}
 	
 	pce = PIECES.wQ;	
@@ -303,7 +309,7 @@ function EvalPosition() {
 			}
 		}
 
-		score += (7 - Distance(sq, bKsq)) * TropismValue * 2;
+		score += (7 - Distance(sq, bKsq)) * TropismValue;
 	}	
 
 	pce = PIECES.bQ;	
@@ -319,7 +325,7 @@ function EvalPosition() {
 			}
 		}
 
-		score -= (7 - Distance(sq, wKsq)) * TropismValue * 2;
+		score -= (7 - Distance(sq, wKsq)) * TropismValue;
 	}
 
 
