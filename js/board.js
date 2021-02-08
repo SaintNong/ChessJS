@@ -111,7 +111,6 @@ function LineMatch(BookLine,gameline) {
 }
 
 function BookMove() {
-	console.log(GameBoard.bookLines)
 
 	var gameLine = PrintGameLine();
 	var bookMoves = [];
