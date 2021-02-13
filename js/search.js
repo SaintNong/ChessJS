@@ -135,7 +135,7 @@ function Quiescence(alpha, beta) {
 
 }
 
-function AlphaBeta(alpha, beta, depth) {
+function AlphaBeta(alpha, beta, depth, DoNull) {
 
 	
 	if(depth <= 0) {
@@ -162,6 +162,27 @@ function AlphaBeta(alpha, beta, depth) {
 	}	
 	
 	var Score = -INFINITE;
+
+	if( DoNull == BOOL.TRUE && BOOL.FALSE == InCheck && GameBoard.ply != 0 && (GameBoard.material[GameBoard.side] > 50300)) {
+	
+		var ePStore = GameBoard.enPas;
+		if(GameBoard.enPas != SQUARES.NO_SQ) HASH_EP();
+		GameBoard.side ^= 1;
+		HASH_SIDE();
+		GameBoard.enPas = SQUARES.NO_SQ;
+		
+		Score = -AlphaBeta( -beta, -beta + 1, depth-4, BOOL.FALSE);
+		
+		GameBoard.side ^= 1;
+		HASH_SIDE();
+		GameBoard.enPas = ePStore;
+		if(GameBoard.enPas != SQUARES.NO_SQ) HASH_EP();
+		
+		if(SearchController.stop == BOOL.TRUE) return 0;	
+		if (Score >= beta) {		 
+		return beta;
+		}	
+	}
 	
 	GenerateMoves();
 	
@@ -191,7 +212,7 @@ function AlphaBeta(alpha, beta, depth) {
 			continue;
 		}		
 		Legal++;
-		Score = -AlphaBeta( -beta, -alpha, depth-1);
+		Score = -AlphaBeta( -beta, -alpha, depth-1, BOOL.TRUE);
 		
 		TakeMove();
 		
@@ -215,7 +236,7 @@ function AlphaBeta(alpha, beta, depth) {
 			}
 
 			if ((Move & MFLAGCAP) == 0) {
-				GameBoard.searchHistory[GameBoard.pieces[FROMSQ(Move)] * BRD_SQ_NUM + TOSQ(Move)] += depth * depth;
+				GameBoard.searchHistory[GameBoard.pieces[FROMSQ(Move)] * GameBoard.SQ_NUM + TOSQ(Move)] += depth * depth;
 			}
 
 			alpha = Score;
@@ -243,7 +264,7 @@ function ClearForSearch() {
 	var index = 0;
 	var index2 = 0;
 	
-	for(index = 0; index < 14 * BRD_SQ_NUM; ++index) {		
+	for(index = 0; index < 14 * GameBoard.SQ_NUM; ++index) {		
 		GameBoard.searchHistory[index] = 0;	
 	}
 	
@@ -289,7 +310,7 @@ function SearchPosition() {
 	
 	for( currentDepth = 1; currentDepth <= SearchController.depth; ++currentDepth) {	
 	
-		Score = AlphaBeta(-INFINITE, INFINITE, currentDepth);
+		Score = AlphaBeta(-INFINITE, INFINITE, currentDepth, BOOL.TRUE);
 					
 		if(SearchController.stop == BOOL.TRUE) {
 			break;
