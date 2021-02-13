@@ -163,7 +163,7 @@ function AlphaBeta(alpha, beta, depth, DoNull) {
 	
 	var Score = -INFINITE;
 
-	if( DoNull == BOOL.TRUE && BOOL.FALSE == InCheck && GameBoard.ply != 0 && (GameBoard.material[GameBoard.side] > 50300)) {
+	if( DoNull == BOOL.TRUE && BOOL.FALSE == InCheck && GameBoard.ply != 0 && (GameBoard.material[GameBoard.side] > 50300) && depth >= 2) {
 	
 		var ePStore = GameBoard.enPas;
 		if(GameBoard.enPas != SQUARES.NO_SQ) HASH_EP();
