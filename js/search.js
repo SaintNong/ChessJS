@@ -104,7 +104,7 @@ function Quiescence(alpha, beta) {
 
 		if(MakeMove(Move) == BOOL.FALSE) {
 			continue;
-		}		
+		}
 		Legal++;
 		Score = -Quiescence( -beta, -alpha);
 		
