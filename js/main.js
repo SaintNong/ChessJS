@@ -110,12 +110,6 @@ function InitBoardVars() {
 		});
 	}
 
-	for ( index = 0; index < PVENTRIES; ++index ) {
-		GameBoard.PvTable.push({
-			move : NOMOVE,
-			posKey : 0	
-		});
-	}
 }
 
 function InitBoardSquares() {
@@ -150,6 +144,7 @@ function init() {
 	EvalInit();
 	InitSq120To64();
 	InitBoardVars();
+	InitHashTable();
 	InitMvvLva();
 	InitBoardSquares();
 }

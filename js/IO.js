@@ -142,7 +142,6 @@ function AddPossibleCapture(sq, isAdd) {
 	$(".Piece").each( function(index) {
 		if (PieceIsOnSq(sq, $(this).position().top, $(this).position().left) == BOOL.TRUE) {
 			if (isAdd) {
-				console.log("ADD")
 				$(this).addClass('PossibleCapture');
 			} else {
 				$(this).removeClass('PossibleCapture')

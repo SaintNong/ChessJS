@@ -26,7 +26,11 @@ var MAXPOSITIONMOVES = 256;
 var MAXDEPTH = 64;
 var INFINITE = 50000;
 var MATE = 45000;
-var PVENTRIES = 10000;
+
+var HASHENTRIES = 2**23;
+var HFLAGALPHA = 1;
+var HFLAGEXACT = 0;
+var HFLAGBETA = -1;
 
 var FilesBrd = new Array(BRD_SQ_NUM);
 var RanksBrd = new Array(BRD_SQ_NUM);
@@ -142,7 +146,7 @@ var MFLAGPROM = 0xF00000;
 var NOMOVE = 0;
 
 function SQOFFBOARD(sq) {
-if(FilesBrd[sq]==SQUARES.OFFBOARD) return BOOL.TRUE;
+if (FilesBrd[sq]==SQUARES.OFFBOARD) return BOOL.TRUE;
 return BOOL.FALSE;	
 }
 

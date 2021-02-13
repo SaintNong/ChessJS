@@ -1,4 +1,5 @@
 var SearchController = {};
+var tTableCutoff;
 
 SearchController.nodes;
 SearchController.fh;
@@ -36,14 +37,6 @@ function PickNextMove(MoveNum) {
 
 }
 
-function ClearPvTable() {
-	
-	for(index = 0; index < PVENTRIES; index++) {
-			GameBoard.PvTable[index].move = NOMOVE;
-			GameBoard.PvTable[index].posKey = 0;		
-	}
-}
-
 function CheckUp() {
 	if (( $.now() - SearchController.start ) > SearchController.time) {
 		SearchController.stop = BOOL.TRUE;
@@ -79,6 +72,7 @@ function Quiescence(alpha, beta) {
 	}	
 	
 	var Score = EvalPosition();
+	var BestScore = -INFINITE;
 	
 	if(Score >= beta) {
 		return beta;
@@ -114,21 +108,30 @@ function Quiescence(alpha, beta) {
 			return 0;
 		}
 		
-		if(Score > alpha) {
-			if(Score >= beta) {
-				if(Legal == 1) {
-					SearchController.fhf++;
-				}
-				SearchController.fh++;	
-				return beta;
-			}
-			alpha = Score;
+		if (BestScore < Score) {
+			BestScore = Score;
 			BestMove = Move;
-		}		
+
+			if(Score > alpha) {
+				if(Score >= beta) {
+					if(Legal == 1) {
+						SearchController.fhf++;
+					}
+					SearchController.fh++;
+					
+					StoreHashEntry(BestMove, beta, HFLAGBETA, -1);
+
+					return beta;
+				}
+				alpha = Score;
+			}
+		}	
 	}
 	
 	if(alpha != OldAlpha) {
-		StorePvMove(BestMove);
+		StoreHashEntry(BestMove, BestScore, HFLAGEXACT, -1);
+	} else {
+		StoreHashEntry(BestMove, alpha, HFLAGALPHA, -1);
 	}
 	
 	return alpha;
@@ -161,7 +164,16 @@ function AlphaBeta(alpha, beta, depth, DoNull) {
 		depth++;
 	}	
 	
+	var BestScore = -INFINITE;
 	var Score = -INFINITE;
+
+	// JS Please add pointers to avoid this pain
+	var hashOutput = [Score, NOMOVE]
+	if (ProbeHashTable(hashOutput, alpha, beta, depth) == BOOL.TRUE) {
+		tTableCutoff++;
+		return hashOutput[1]; // :D Yay CUTOFF WOOO
+	}
+	PvMove = hashOutput[0];
 
 	if( DoNull == BOOL.TRUE && BOOL.FALSE == InCheck && GameBoard.ply != 0 && (GameBoard.material[GameBoard.side] > 50300) && depth >= 2) {
 	
@@ -192,7 +204,7 @@ function AlphaBeta(alpha, beta, depth, DoNull) {
 	var BestMove = NOMOVE;
 	var Move = NOMOVE;
 	
-	var PvMove = ProbePvTable();
+	
 	if (PvMove != NOMOVE) {
 		for (MoveNum = GameBoard.moveListStart[GameBoard.ply]; MoveNum < GameBoard.moveListStart[GameBoard.ply + 1]; ++MoveNum) {
 			if (GameBoard.moveList[MoveNum] == PvMove) {
@@ -219,29 +231,33 @@ function AlphaBeta(alpha, beta, depth, DoNull) {
 		if(SearchController.stop == BOOL.TRUE) {
 			return 0;
 		}
-		
-		if(Score > alpha) {
-			if(Score >= beta) {
-				if(Legal == 1) {
-					SearchController.fhf++;
-				}
-				SearchController.fh++;				
-				if ((Move & MFLAGCAP) == 0) {
-					GameBoard.searchKillers[MAXDEPTH + GameBoard.ply] = 
-						GameBoard.searchKillers[GameBoard.ply];
-					GameBoard.searchKillers[GameBoard.ply] = Move;
-				}
-				
-				return beta;
-			}
-
-			if ((Move & MFLAGCAP) == 0) {
-				GameBoard.searchHistory[GameBoard.pieces[FROMSQ(Move)] * GameBoard.SQ_NUM + TOSQ(Move)] += depth * depth;
-			}
-
-			alpha = Score;
+		if(Score > BestScore) {
+			BestScore = Score;
 			BestMove = Move;
-		}		
+
+			if(Score > alpha) {
+				if(Score >= beta) {
+					if(Legal == 1) {
+						SearchController.fhf++;
+					}
+					SearchController.fh++;				
+					if ((Move & MFLAGCAP) == 0) {
+						GameBoard.searchKillers[MAXDEPTH + GameBoard.ply] = GameBoard.searchKillers[GameBoard.ply];
+						GameBoard.searchKillers[GameBoard.ply] = Move;
+					}
+
+					StoreHashEntry(BestMove, beta, HFLAGBETA, depth);
+					
+					return beta;
+				}
+
+				if ((Move & MFLAGCAP) == 0) {
+					GameBoard.searchHistory[GameBoard.pieces[FROMSQ(Move)] * GameBoard.SQ_NUM + TOSQ(Move)] += depth * depth;
+				}
+
+				alpha = Score;
+			}
+		}	
 	}	
 	
 	if(Legal == 0) {
@@ -253,7 +269,9 @@ function AlphaBeta(alpha, beta, depth, DoNull) {
 	}	
 	
 	if(alpha != OldAlpha) {
-		StorePvMove(BestMove);
+		StoreHashEntry(BestMove, BestScore, HFLAGEXACT, depth);
+	} else {
+		StoreHashEntry(BestMove, alpha, HFLAGALPHA, depth);
 	}
 	
 	return alpha;
@@ -262,7 +280,6 @@ function AlphaBeta(alpha, beta, depth, DoNull) {
 function ClearForSearch() {
 
 	var index = 0;
-	var index2 = 0;
 	
 	for(index = 0; index < 14 * GameBoard.SQ_NUM; ++index) {		
 		GameBoard.searchHistory[index] = 0;	
@@ -272,7 +289,6 @@ function ClearForSearch() {
 		GameBoard.searchKillers[index] = 0;
 	}	
 	
-	ClearPvTable();
 	GameBoard.ply = 0;
 	SearchController.nodes = 0;
 	SearchController.fh = 0;
@@ -290,6 +306,7 @@ function SearchPosition() {
 	var line;
 	var PvNum;
 	var c;
+	tTableCutoff = 0;
 	ClearForSearch();
 
 	if(BookLoaded == BOOL.TRUE) {
@@ -317,7 +334,11 @@ function SearchPosition() {
 		}
 
 		bestScore = Score;
-		bestMove = ProbePvTable();
+
+		var hashOutput = [Score, NOMOVE]
+		bestMove = ProbeHashTable(hashOutput, 0, 0, -1);
+		bestMove = hashOutput[0];
+
 		line = 'D:' + currentDepth + ' Best:' + PrMove(bestMove) + ' Score:' + bestScore + 
 				' nodes:' + SearchController.nodes;
 				
@@ -331,7 +352,8 @@ function SearchPosition() {
 		}
 		console.log(line);
 		
-	}	
+	}
+	console.log("Table Cuttoffs: " + tTableCutoff)
 	
 	SearchController.best = bestMove;
 	SearchController.thinking = BOOL.FALSE;
@@ -354,44 +376,4 @@ function UpdateDOMStats(dom_score, dom_depth) {
 
 	$("#BestOut").text("Best Move: " + PrMove(SearchController.best));
 
-}
-
-function GetPvLine(depth) {
-	
-	var move = ProbePvTable();
-	var count = 0;
-	
-	while(move != NOMOVE && count < depth) {
-	
-		if( MoveExists(move) == BOOL.TRUE) {
-			MakeMove(move);
-			GameBoard.PvArray[count++] = move;			
-		} else {
-			break;
-		}		
-		move = ProbePvTable();	
-	}
-	
-	while(GameBoard.ply > 0) {
-		TakeMove();
-	}
-	
-	return count;
-	
-}
-
-function ProbePvTable() {
-	var index = GameBoard.posKey % PVENTRIES;
-	
-	if(GameBoard.PvTable[index].posKey == GameBoard.posKey) {
-		return GameBoard.PvTable[index].move;
-	}
-	
-	return NOMOVE;
-}
-
-function StorePvMove(move) {
-	var index = GameBoard.posKey % PVENTRIES;
-	GameBoard.PvTable[index].posKey = GameBoard.posKey;
-	GameBoard.PvTable[index].move = move;
 }
