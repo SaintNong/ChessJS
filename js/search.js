@@ -162,7 +162,7 @@ function AlphaBeta(alpha, beta, depth, DoNull) {
 	var InCheck = SqAttacked(GameBoard.pList[PCEINDEX(Kings[GameBoard.side],0)], GameBoard.side^1);
 	if(InCheck == BOOL.TRUE)  {
 		depth++;
-	}	
+	}
 	
 	var BestScore = -INFINITE;
 	var Score = -INFINITE;
@@ -175,6 +175,7 @@ function AlphaBeta(alpha, beta, depth, DoNull) {
 	}
 	PvMove = hashOutput[0];
 
+	// Null Move Pruning
 	if( DoNull == BOOL.TRUE && BOOL.FALSE == InCheck && GameBoard.ply != 0 && (GameBoard.material[GameBoard.side] > 50300) && depth >= 2) {
 	
 		var ePStore = GameBoard.enPas;
