@@ -177,9 +177,6 @@ function AlphaBeta(alpha, beta, depth, DoNull) {
 	}
 	PvMove = hashOutput[0];
 
-	// Check Extension
-	if (InCheck) depth++;
-
 	// Null Move Pruning
 	if( DoNull == BOOL.TRUE && BOOL.FALSE == InCheck && GameBoard.ply != 0 && (GameBoard.material[GameBoard.side] > 50300) && depth >= 2) {
 	
