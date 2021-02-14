@@ -27,7 +27,7 @@ var MAXDEPTH = 64;
 var INFINITE = 50000;
 var MATE = 45000;
 
-var HASHENTRIES = 2**23;
+var HASHENTRIES = 2**22;
 var HFLAGALPHA = 1;
 var HFLAGEXACT = 0;
 var HFLAGBETA = -1;
