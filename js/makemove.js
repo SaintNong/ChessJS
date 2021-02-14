@@ -136,7 +136,7 @@ function MakeMove(move) {
     HASH_SIDE();
     
     if(SqAttacked(GameBoard.pList[PCEINDEX(Kings[side],0)], GameBoard.side))  {
-         TakeMove();
+        TakeMove();
     	return BOOL.FALSE;
     }
     

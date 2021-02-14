@@ -2,6 +2,7 @@ var SearchController = {};
 
 var tTableCutoff;
 var LMR;
+var futility;
 
 SearchController.nodes;
 SearchController.fh;
@@ -198,6 +199,15 @@ function AlphaBeta(alpha, beta, depth, DoNull) {
 		return beta;
 		}	
 	}
+
+	// Futility pruning
+	let futilityMargin = [ 0, PieceVal[PIECES.wP], PieceVal[PIECES.wN], PieceVal[PIECES.wR] ];
+
+	var staticEval = EvalPosition();
+	var futilityPruning = 0;
+	if (depth < 4 && Math.abs(alpha) < MATE && staticEval + futilityMargin[depth] <= alpha) futilityPruning = 1;
+    
+
 	
 	GenerateMoves();
 	
@@ -227,6 +237,17 @@ function AlphaBeta(alpha, beta, depth, DoNull) {
 			continue;
 		}		
 		Legal++;
+
+		// Futility Pruning
+		if (
+			futilityPruning &&
+			CAPTURED(Move) == PIECES.EMPTY &&
+			!SqAttacked(GameBoard.pList[PCEINDEX(Kings[GameBoard.side^1],0)], GameBoard.side)
+			) {
+				futility++;
+				TakeMove();
+				continue;
+			}
 
 		// Late Move Reduction
 		if (
@@ -337,6 +358,7 @@ function SearchPosition() {
 
 	tTableCutoff = 0;
 	LMR = 0;
+	futility = 0;
 
 	ClearForSearch();
 
@@ -386,6 +408,7 @@ function SearchPosition() {
 	}
 	console.log("Table Cuttoffs: " + tTableCutoff);
 	console.log("Late Move Reducitons: " + LMR);
+	console.log("Futility Prunes: " + futility);
 	
 	SearchController.best = bestMove;
 	SearchController.thinking = BOOL.FALSE;
