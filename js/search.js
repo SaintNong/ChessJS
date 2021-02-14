@@ -1,5 +1,7 @@
 var SearchController = {};
+
 var tTableCutoff;
+var LMR;
 
 SearchController.nodes;
 SearchController.fh;
@@ -225,7 +227,31 @@ function AlphaBeta(alpha, beta, depth, DoNull) {
 			continue;
 		}		
 		Legal++;
-		Score = -AlphaBeta( -beta, -alpha, depth-1, BOOL.TRUE);
+
+		// Late Move Reduction
+		if (
+			PvMove == NOMOVE &&
+			InCheck == BOOL.FALSE &&
+			CAPTURED(Move) == PIECES.EMPTY &&
+			PROMOTED(Move) == PIECES.EMPTY &&
+
+			(
+				FROMSQ(GameBoard.searchKillers[GameBoard.ply]) != FROMSQ(Move) ||
+				TOSQ(GameBoard.searchKillers[GameBoard.ply]) != TOSQ(Move)
+			) &&
+			(
+				FROMSQ(GameBoard.searchKillers[MAXDEPTH + GameBoard.ply]) != FROMSQ(Move) ||
+				TOSQ(GameBoard.searchKillers[MAXDEPTH + GameBoard.ply]) != TOSQ(Move)
+			)
+		) {
+			LMR++;
+			Score = -AlphaBeta( -beta, -alpha, depth-2, BOOL.TRUE);
+		}
+		else {
+			Score = -AlphaBeta( -beta, -alpha, depth-1, BOOL.TRUE);
+		}
+
+
 		
 		TakeMove();
 		
@@ -307,7 +333,11 @@ function SearchPosition() {
 	var line;
 	var PvNum;
 	var c;
+
+
 	tTableCutoff = 0;
+	LMR = 0;
+
 	ClearForSearch();
 
 	if(BookLoaded == BOOL.TRUE) {
@@ -354,7 +384,8 @@ function SearchPosition() {
 		console.log(line);
 		
 	}
-	console.log("Table Cuttoffs: " + tTableCutoff)
+	console.log("Table Cuttoffs: " + tTableCutoff);
+	console.log("Late Move Reducitons: " + LMR);
 	
 	SearchController.best = bestMove;
 	SearchController.thinking = BOOL.FALSE;
