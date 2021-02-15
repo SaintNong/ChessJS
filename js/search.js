@@ -167,6 +167,13 @@ function AlphaBeta(alpha, beta, depth, DoNull) {
 		depth++;
 	}
 	
+	// Evaluation Pruning
+	const staticEval = EvalPosition();
+	if (depth < 3 && Math.abs(beta - 1) < -MATE + 100) {
+		let evalMargin = PieceVal[PIECES.wP] * depth
+		if (staticEval - evalMargin >= beta) return staticEval - evalMargin;
+	}
+
 	var BestScore = -INFINITE;
 	var Score = -INFINITE;
 
@@ -203,7 +210,6 @@ function AlphaBeta(alpha, beta, depth, DoNull) {
 	// Futility pruning
 	let futilityMargin = [ 0, PieceVal[PIECES.wP], PieceVal[PIECES.wN], PieceVal[PIECES.wR] ];
 
-	var staticEval = EvalPosition();
 	var futilityPruning = 0;
 	if (depth < 4 && Math.abs(alpha) < MATE && staticEval + futilityMargin[depth] <= alpha) futilityPruning = 1;
     

@@ -34,7 +34,7 @@ function InitHashTable() {
 		GameBoard.HashTable.push({
 			move : NOMOVE,
 			score : 0,
-			depth : null,
+			depth : -2,
 			flags : -2,
 			posKey : 0
 		});
@@ -54,32 +54,36 @@ function ClearHashTable() {
 }
 
 function ProbeHashTable(output, alpha, beta, depth) {
-	var index = GameBoard.posKey % HASHENTRIES;
+	var index;
 	
-	if(GameBoard.HashTable[index].posKey == GameBoard.posKey) {
-		output[0] = GameBoard.HashTable[index].move;
+	for (var i=1; i < 4; i++) {
+		index = GameBoard.posKey * i % HASHENTRIES;
 
-		if(GameBoard.HashTable[index].depth >= depth) {
-			output[1] = GameBoard.HashTable[index].score;
-			if (output[1] > MATE) output[1] -= GameBoard.ply;
-			else if (output[1] < -MATE) output[1] += GameBoard.ply;
+		if(GameBoard.HashTable[index].posKey == GameBoard.posKey) {
+			output[0] = GameBoard.HashTable[index].move;
 
-			switch (GameBoard.HashTable[index].flags) {
-				case HFLAGALPHA:
-					if (output[1] <= alpha) {
-						output[1] = alpha;
+			if(GameBoard.HashTable[index].depth >= depth) {
+				output[1] = GameBoard.HashTable[index].score;
+				if (output[1] > MATE) output[1] -= GameBoard.ply;
+				else if (output[1] < -MATE) output[1] += GameBoard.ply;
+
+				switch (GameBoard.HashTable[index].flags) {
+					case HFLAGALPHA:
+						if (output[1] <= alpha) {
+							output[1] = alpha;
+							return BOOL.TRUE;
+						}
+						break;
+					case HFLAGBETA:
+						if (output[1] >= beta) {
+							output[1] = beta;
+						}
+						break;
+					case HFLAGEXACT:
 						return BOOL.TRUE;
-					}
-					break;
-				case HFLAGBETA:
-					if (output[1] >= beta) {
-
-					}
-					break;
-				case HFLAGEXACT:
-					return BOOL.TRUE;
-					break;
-				default: console.log("Fuck something went very wrong..."); break;
+						break;
+					default: console.log("Fuck something went very wrong..."); break;
+				}
 			}
 		}
 	}
@@ -89,6 +93,14 @@ function ProbeHashTable(output, alpha, beta, depth) {
 
 function StoreHashEntry(move, score, flags, depth) {
 	var index = GameBoard.posKey % HASHENTRIES;
+	
+	// Index collision replacement
+	if (GameBoard.HashTable[index].depth > depth) {
+		index = GameBoard.posKey * 2 % HASHENTRIES;
+	} else if (GameBoard.HashTable[index].depth > depth) {
+		index = GameBoard.posKey * 3 % HASHENTRIES;
+	}
+
 	var storedScore = score;
 
 	if (score > MATE) storedScore += GameBoard.ply;
